@@ -1,4 +1,8 @@
-package list;
+package list.test;
+
+import list.Iterator;
+import list.LinkedList;
+import list.List;
 
 public class LinkedListTest {
 
@@ -28,8 +32,15 @@ public class LinkedListTest {
 			System.out.println(i + "번쨰 항목:" + list.get(i));
 		}
 		
+		Iterator<Integer> it = list.iterator();				//iterator는 한번 할당받아서 루프를 돌고나서는 다시 쓸수없다(다시 할당을 받아서 사용가능)
+		while(it.hasNext())
+		{
+			int i=it.next();		//auto unboxing
+			System.out.println("it:"+i);
+		}
+		
 		//remove 테스트
-		list.remove(4);
+	/*	list.remove(4);
 		
 		// size 연산
 		count = list.size();
@@ -38,7 +49,7 @@ public class LinkedListTest {
 		// get연산 테스트
 		for (int i = 0; i < count; i++) {
 			System.out.println(i + "번쨰 항목:" + list.get(i));
-		}
+		}*/
 
 	/*	// removeall 테스트
 		list.removeAll();

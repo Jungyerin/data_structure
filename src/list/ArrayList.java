@@ -1,5 +1,6 @@
 package list;
 
+
 public class ArrayList<E> implements List<E> {
 
 	private static final int INIT_CAPACITY = 3;
@@ -70,5 +71,33 @@ public class ArrayList<E> implements List<E> {
 
 		return size;
 	}
+
+	@Override
+	public Object[] toArray() {
+		return null;
+	}
+
+	@Override
+	public list.Iterator<E> iterator() {
+		
+		return new Iterator<E>(){
+			private int index=0;
+			@Override
+			public boolean hasNext() {
+				
+				return index<size;
+			}
+
+			@Override
+			public E next() {
+				
+				return data[index++];
+			}
+			
+		};
+	}
+
+
+	
 
 }

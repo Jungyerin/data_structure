@@ -8,5 +8,8 @@ public interface List<E> {
 	E remove(int index);
 	void removeAll();
 	int size();
+	
+	Object[] toArray();
+	Iterator<E> iterator();
 
 }

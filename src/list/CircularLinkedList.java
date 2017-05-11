@@ -1,49 +1,47 @@
 package list;
 
-public class LinkedList<E> implements List<E> {
+public class CircularLinkedList<E> implements List<E> {
 
 	private int size = 0;
-	private Node<E> head = null;
 	private Node<E> tail = null;
+	private Node<E> pos = null;
 
 	@Override
 	public void add(E element) {
-		Node<E> newNode = new Node<E>(element);
-		if (head == null) {
+		final Node<E> newNode = new Node<E>(element);
 
-			head = newNode;
+		if (tail == null) {
+			tail = newNode.next = newNode; // 처음 노드를 추가할 때 하나의 노드 밖에 존재하지 않기 때문에
+											// 자신을 가리키고 있어야 함.
 		} else {
-			Node<E> x = head;
-			while (x.next != null) {
-				x = x.next;
-			}
-
-			x.next = newNode;
+			newNode.next = tail.next; // 추가는 head에 추가를 함. head
+			tail.next = newNode;
+			tail = tail.next;
 		}
 
-		tail = newNode;
 		size++;
 
 	}
 
 	@Override
 	public void add(int index, E element) {
+
 		Node<E> newNode = new Node<E>(element);
-		Node<E> x = head;
+		Node<E> x = tail.next;
 
 		if (size < index) {
 			throw new IndexOutOfBoundsException("Index:" + index + ", size:" + size);
 		}
 
-		if (head == null) {
-			head = newNode;
+		if (tail == null) {
+			tail = newNode.next = newNode;
 		} else if (index == 0) {
 
-			head = newNode;
+			tail.next = newNode;
 			newNode.next = x;
 
 		} else {
-			Node<E> prex = head;
+			Node<E> prex = tail.next;
 			for (int i = 0; i < index - 1; i++) {
 				prex = prex.next;
 			}
@@ -55,39 +53,39 @@ public class LinkedList<E> implements List<E> {
 			newNode.next = x;
 		}
 
-		settail();
 		size++;
+
 	}
 
 	@Override
 	public E get(int index) {
-
 		if (index == size) {
-			throw new IndexOutOfBoundsException("Index:" + index + ", size:" + size);
+			throw new IndexOutOfBoundsException("Index:" + index + ", size:" + size); // unchecked
+																						// exception
+																						// ?
 		}
-		Node<E> x = head;
-
+		Node<E> x = tail.next;
 		for (int i = 0; i < index; i++) {
 			x = x.next;
 		}
 
 		return x.data;
+
 	}
 
 	@Override
 	public E remove(int index) {
-		Node<E> x = head;
+		Node<E> x = tail.next;
 
 		if (size <= index) {
 			throw new IndexOutOfBoundsException("Index:" + index + ", size:" + size);
 		}
 
 		if (index == 0) {
-			head = head.next;
-		//	x = null;
+			tail.next = tail.next.next;
 
 		} else {
-			Node<E> prex = head;
+			Node<E> prex = tail.next;
 			for (int i = 0; i < index - 1; i++) {
 				prex = prex.next;
 			}
@@ -96,10 +94,8 @@ public class LinkedList<E> implements List<E> {
 			}
 
 			prex.next = x.next;
-		//	x = null;
 		}
 
-		settail();
 		size--;
 
 		return x.data;
@@ -107,38 +103,67 @@ public class LinkedList<E> implements List<E> {
 
 	@Override
 	public void removeAll() {
-
-		for (Node<E> x = head; x != null;) {
+		Node<E> x = tail.next;
+		while (x != tail) {
 			Node<E> next = x.next;
-			x.data = null;
 			x.next = null;
-
 			x = next;
 		}
 
-		head = null;
+		tail.next = null;
 		tail = null;
 		size = 0;
 
 	}
 
-	public void settail() {
-		Node<E> x = head;
-		while (x.next != null) {
-			x = x.next;
-		}
-		tail = x;
-
-	}
-
 	@Override
 	public int size() {
+
 		return size;
 	}
 
 	@Override
 	public Object[] toArray() {
-		// TODO Auto-generated method stub
+		Object[] arr = new Object[size];
+		if (tail == null) {
+			return arr;
+		}
+
+		int index = 0;
+		Node<E> x = tail.next;
+		while (true) {
+			arr[index++] = x.data;
+			x = x.next;
+
+			if (x == tail.next) // 다시 head로 이동됨.
+			{
+				break;
+			}
+		}
+		return arr;
+	}
+
+	@Override
+	public String toString() {
+		String s = "[";
+		int index = 0;
+		Node<E> x = tail == null ? null : tail.next;
+
+		while (index < size) {
+			if (index++ > 0) {
+				s += ", ";
+			}
+			s += x.data;
+			x = x.next;
+		}
+		s += "]";
+
+		return s;
+
+	}
+
+	public E next() {
+
 		return null;
 	}
 
@@ -147,7 +172,7 @@ public class LinkedList<E> implements List<E> {
 
 		return new Iterator<E>() {
 			private int index = 0;
-			Node<E> x = head;
+			Node<E> x = tail.next;
 
 			@Override
 			public boolean hasNext() {
@@ -160,7 +185,7 @@ public class LinkedList<E> implements List<E> {
 
 				index++;
 				if (index - 1 == 0) {
-					return head.data;
+					return tail.next.data;
 				} else {
 					x = x.next;
 					return x.data;
@@ -184,6 +209,6 @@ public class LinkedList<E> implements List<E> {
 			this.data = element;
 			this.next = next;
 		}
-
 	}
+
 }

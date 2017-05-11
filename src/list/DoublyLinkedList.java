@@ -1,6 +1,6 @@
 package list;
 
-public class LinkedList<E> implements List<E> {
+public class DoublyLinkedList<E> implements List<E> {
 
 	private int size = 0;
 	private Node<E> head = null;
@@ -8,26 +8,22 @@ public class LinkedList<E> implements List<E> {
 
 	@Override
 	public void add(E element) {
-		Node<E> newNode = new Node<E>(element);
+		final Node<E> newNode = new Node<E>(element);
+
 		if (head == null) {
-
-			head = newNode;
+			head = tail = newNode;
 		} else {
-			Node<E> x = head;
-			while (x.next != null) {
-				x = x.next;
-			}
-
-			x.next = newNode;
+			tail.next = newNode;
+			newNode.prev = tail;
+			tail = newNode;
 		}
 
-		tail = newNode;
 		size++;
-
 	}
 
 	@Override
 	public void add(int index, E element) {
+
 		Node<E> newNode = new Node<E>(element);
 		Node<E> x = head;
 
@@ -36,46 +32,49 @@ public class LinkedList<E> implements List<E> {
 		}
 
 		if (head == null) {
-			head = newNode;
+			head = tail = newNode;
 		} else if (index == 0) {
 
-			head = newNode;
+			head = x.prev = newNode;
 			newNode.next = x;
+			newNode.prev = null;
 
 		} else {
-			Node<E> prex = head;
-			for (int i = 0; i < index - 1; i++) {
-				prex = prex.next;
-			}
+
 			for (int i = 0; i < index; i++) {
 				x = x.next;
 			}
-
-			prex.next = newNode;
+			newNode.prev = x.prev;
 			newNode.next = x;
+			x.prev.next = newNode;
+			x.prev = newNode;
 		}
 
 		settail();
 		size++;
+
 	}
 
 	@Override
 	public E get(int index) {
-
 		if (index == size) {
-			throw new IndexOutOfBoundsException("Index:" + index + ", size:" + size);
+			throw new IndexOutOfBoundsException("Index:" + index + ", size:" + size); // unchecked
+																						// exception
+																						// ?
 		}
-		Node<E> x = head;
 
+		Node<E> x = head;
 		for (int i = 0; i < index; i++) {
 			x = x.next;
 		}
 
 		return x.data;
+
 	}
 
 	@Override
 	public E remove(int index) {
+
 		Node<E> x = head;
 
 		if (size <= index) {
@@ -84,21 +83,25 @@ public class LinkedList<E> implements List<E> {
 
 		if (index == 0) {
 			head = head.next;
-		//	x = null;
+			// x = null;
 
-		} else {
-			Node<E> prex = head;
-			for (int i = 0; i < index - 1; i++) {
-				prex = prex.next;
-			}
+		} else if (index == size - 1) {
 			for (int i = 0; i < index; i++) {
 				x = x.next;
 			}
 
-			prex.next = x.next;
-		//	x = null;
+			x.prev.next = null;
 		}
 
+		else {
+			for (int i = 0; i < index; i++) {
+				x = x.next;
+			}
+
+			x.prev.next = x.next;
+			x.next.prev = x.prev;
+			// x = null;
+		}
 		settail();
 		size--;
 
@@ -107,19 +110,48 @@ public class LinkedList<E> implements List<E> {
 
 	@Override
 	public void removeAll() {
+		Node<E> x = head;
 
-		for (Node<E> x = head; x != null;) {
+		while (x != null) {
 			Node<E> next = x.next;
-			x.data = null;
 			x.next = null;
-
+			x.prev = null;
 			x = next;
 		}
-
+		size = 0;
 		head = null;
 		tail = null;
-		size = 0;
 
+	}
+
+	@Override
+	public int size() {
+
+		return size;
+	}
+
+	@Override
+	public Object[] toArray() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String toString() {
+		String s = "[";
+		int index = 0;
+		Node<E> x = head;
+
+		while (x != null) {
+			if (index++ > 0) {
+				s += ", ";
+			}
+			s += x.data;
+			x = x.next;
+		}
+		s += "]";
+
+		return s;
 	}
 
 	public void settail() {
@@ -129,17 +161,6 @@ public class LinkedList<E> implements List<E> {
 		}
 		tail = x;
 
-	}
-
-	@Override
-	public int size() {
-		return size;
-	}
-
-	@Override
-	public Object[] toArray() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -173,17 +194,15 @@ public class LinkedList<E> implements List<E> {
 
 	private static class Node<E> {
 		private Node<E> next;
+		private Node<E> prev;
 		private E data;
 
 		private Node(E element) {
 			this.data = element;
 			this.next = null;
-		}
-
-		private Node(E element, Node<E> next) {
-			this.data = element;
-			this.next = next;
+			this.prev = null;
 		}
 
 	}
+
 }
