@@ -1,4 +1,4 @@
-package list;
+package stack.calc;
 
 public class ArrayList<E> implements List<E> {
 
@@ -38,6 +38,21 @@ public class ArrayList<E> implements List<E> {
 	@Override
 	public void add(int index, E element) {
 
+		if (size < index || index < 0) {
+			throw new IndexOutOfBoundsException("Index:" + index + ", size:" + size);
+		}
+
+		if (data.length <= size) {
+			resize();
+		}
+
+		for (int i = size; i > index; i--) {
+			data[i] = data[i - 1];
+		}
+
+		data[index] = element;
+		size++;
+
 	}
 
 	@Override
@@ -67,7 +82,6 @@ public class ArrayList<E> implements List<E> {
 		size--;
 
 		return element;
-
 	}
 
 	@Override
@@ -91,7 +105,7 @@ public class ArrayList<E> implements List<E> {
 	}
 
 	@Override
-	public list.Iterator<E> iterator() {
+	public stack.calc.Iterator<E> iterator() {
 
 		return new Iterator<E>() {
 			private int index = 0;

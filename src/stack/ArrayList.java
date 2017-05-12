@@ -1,4 +1,5 @@
-package list;
+package stack;
+
 
 public class ArrayList<E> implements List<E> {
 
@@ -26,8 +27,7 @@ public class ArrayList<E> implements List<E> {
 	@Override
 	public void add(E element) {
 
-		if (data.length <= size) { // 버퍼가 모자라지 않은 경우 : 1 버퍼가 모자란 경우 : n (빅오
-									// 시간복잡도) 최악의 경우를 정하기 때문에 시간복잡도는 n이 됨
+		if (data.length <= size) {   //버퍼가 모자라지 않은 경우 : 1 버퍼가 모자란 경우 : n (빅오 시간복잡도) 최악의 경우를 정하기 때문에 시간복잡도는 n이 됨
 			resize();
 		}
 
@@ -42,14 +42,13 @@ public class ArrayList<E> implements List<E> {
 
 	@Override
 	public E get(int index) {
-
-		if (index == size) {
-			throw new IndexOutOfBoundsException("Index:" + index + ", size:" + size); // unchecked
-																						// exception
-																						// ?
+		
+		if(index==size)
+		{
+			throw new IndexOutOfBoundsException("Index:"+index+", size:"+size); //unchecked exception ?
 		}
 
-		return data[index]; // 복잡도 1
+		return data[index];  //복잡도 1
 	}
 
 	@Override
@@ -67,15 +66,14 @@ public class ArrayList<E> implements List<E> {
 		size--;
 
 		return element;
-
 	}
 
 	@Override
 	public void removeAll() {
-		for (int i = 0; i < size; i++) {
-			data[i] = null;
+		for(int i=0;i<size;i++){
+			data[i]=null;
 		}
-		size = 0;
+		size=0;
 
 	}
 
@@ -91,24 +89,26 @@ public class ArrayList<E> implements List<E> {
 	}
 
 	@Override
-	public list.Iterator<E> iterator() {
-
-		return new Iterator<E>() {
-			private int index = 0;
-
+	public stack.Iterator<E> iterator() {
+		
+		return new Iterator<E>(){
+			private int index=0;
 			@Override
 			public boolean hasNext() {
-
-				return index < size;
+				
+				return index<size;
 			}
 
 			@Override
 			public E next() {
-
+				
 				return data[index++];
 			}
-
+			
 		};
 	}
+
+
+	
 
 }

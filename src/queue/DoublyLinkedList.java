@@ -1,58 +1,89 @@
-package list;
+package queue;
 
-public class CircularLinkedList<E> implements List<E> {
+public class DoublyLinkedList<E> implements List<E>, Queue<E> {
 
 	private int size = 0;
+	private Node<E> head = null;
 	private Node<E> tail = null;
-	private Node<E> pos = null;
+
+	@Override
+	public void offer(E item) {
+		add(item);
+	}
+
+	@Override
+	public E poll() {
+
+		Node<E> x = head;
+		if (head == null) {
+			return null;
+		} else {
+			x.data = head.data;
+			head = head.next;
+			if (head != null) {
+				head.prev = null;
+			}
+
+			return x.data;
+		}
+
+	}
+
+	@Override
+	public E peek() {
+
+		if (head == null) {
+			return null;
+		} else {
+			return head.data;
+		}
+	}
 
 	@Override
 	public void add(E element) {
 		final Node<E> newNode = new Node<E>(element);
 
-		if (tail == null) {
-			tail = newNode.next = newNode; // 처음 노드를 추가할 때 하나의 노드 밖에 존재하지 않기 때문에
-											// 자신을 가리키고 있어야 함.
+		if (head == null) {
+			head = tail = newNode;
 		} else {
-			newNode.next = tail.next; // 추가는 head에 추가를 함. head
 			tail.next = newNode;
-			tail = tail.next;
+			newNode.prev = tail;
+			tail = newNode;
 		}
 
 		size++;
-
 	}
 
 	@Override
 	public void add(int index, E element) {
 
 		Node<E> newNode = new Node<E>(element);
-		Node<E> x = tail.next;
+		Node<E> x = head;
 
 		if (size < index) {
 			throw new IndexOutOfBoundsException("Index:" + index + ", size:" + size);
 		}
 
-		if (tail == null) {
-			tail = newNode.next = newNode;
+		if (head == null) {
+			head = tail = newNode;
 		} else if (index == 0) {
 
-			tail.next = newNode;
+			head = x.prev = newNode;
 			newNode.next = x;
+			newNode.prev = null;
 
 		} else {
-			Node<E> prex = tail.next;
-			for (int i = 0; i < index - 1; i++) {
-				prex = prex.next;
-			}
+
 			for (int i = 0; i < index; i++) {
 				x = x.next;
 			}
-
-			prex.next = newNode;
+			newNode.prev = x.prev;
 			newNode.next = x;
+			x.prev.next = newNode;
+			x.prev = newNode;
 		}
 
+		settail();
 		size++;
 
 	}
@@ -64,7 +95,8 @@ public class CircularLinkedList<E> implements List<E> {
 																						// exception
 																						// ?
 		}
-		Node<E> x = tail.next;
+
+		Node<E> x = head;
 		for (int i = 0; i < index; i++) {
 			x = x.next;
 		}
@@ -75,27 +107,35 @@ public class CircularLinkedList<E> implements List<E> {
 
 	@Override
 	public E remove(int index) {
-		Node<E> x = tail.next;
+
+		Node<E> x = head;
 
 		if (size <= index) {
 			throw new IndexOutOfBoundsException("Index:" + index + ", size:" + size);
 		}
 
 		if (index == 0) {
-			tail.next = tail.next.next;
+			head = head.next;
+			// x = null;
 
-		} else {
-			Node<E> prex = tail.next;
-			for (int i = 0; i < index - 1; i++) {
-				prex = prex.next;
-			}
+		} else if (index == size - 1) {
 			for (int i = 0; i < index; i++) {
 				x = x.next;
 			}
 
-			prex.next = x.next;
+			x.prev.next = null;
 		}
 
+		else {
+			for (int i = 0; i < index; i++) {
+				x = x.next;
+			}
+
+			x.prev.next = x.next;
+			x.next.prev = x.prev;
+			// x = null;
+		}
+		settail();
 		size--;
 
 		return x.data;
@@ -103,16 +143,17 @@ public class CircularLinkedList<E> implements List<E> {
 
 	@Override
 	public void removeAll() {
-		Node<E> x = tail.next;
-		while (x != tail) {
+		Node<E> x = head;
+
+		while (x != null) {
 			Node<E> next = x.next;
 			x.next = null;
+			x.prev = null;
 			x = next;
 		}
-
-		tail.next = null;
-		tail = null;
 		size = 0;
+		head = null;
+		tail = null;
 
 	}
 
@@ -124,32 +165,17 @@ public class CircularLinkedList<E> implements List<E> {
 
 	@Override
 	public Object[] toArray() {
-		Object[] arr = new Object[size];
-		if (tail == null) {
-			return arr;
-		}
-
-		int index = 0;
-		Node<E> x = tail.next;
-		while (true) {
-			arr[index++] = x.data;
-			x = x.next;
-
-			if (x == tail.next) // 다시 head로 이동됨.
-			{
-				break;
-			}
-		}
-		return arr;
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public String toString() {
 		String s = "[";
 		int index = 0;
-		Node<E> x = tail == null ? null : tail.next;
+		Node<E> x = head;
 
-		while (index < size) {
+		while (x != null) {
 			if (index++ > 0) {
 				s += ", ";
 			}
@@ -159,26 +185,23 @@ public class CircularLinkedList<E> implements List<E> {
 		s += "]";
 
 		return s;
-
 	}
 
-	public E next() {
-
-		if (pos == null) {
-			pos = tail.next;
+	public void settail() {
+		Node<E> x = head;
+		while (x.next != null) {
+			x = x.next;
 		}
-		E data = pos.data;
-		pos = pos.next;
+		tail = x;
 
-		return data;
 	}
 
 	@Override
-	public list.Iterator<E> iterator() {
+	public queue.Iterator<E> iterator() {
 
 		return new Iterator<E>() {
 			private int index = 0;
-			Node<E> x = tail.next;
+			Node<E> x = head;
 
 			@Override
 			public boolean hasNext() {
@@ -191,7 +214,7 @@ public class CircularLinkedList<E> implements List<E> {
 
 				index++;
 				if (index - 1 == 0) {
-					return tail.next.data;
+					return head.data;
 				} else {
 					x = x.next;
 					return x.data;
@@ -204,17 +227,15 @@ public class CircularLinkedList<E> implements List<E> {
 
 	private static class Node<E> {
 		private Node<E> next;
+		private Node<E> prev;
 		private E data;
 
 		private Node(E element) {
 			this.data = element;
 			this.next = null;
+			this.prev = null;
 		}
 
-		private Node(E element, Node<E> next) {
-			this.data = element;
-			this.next = next;
-		}
 	}
 
 }

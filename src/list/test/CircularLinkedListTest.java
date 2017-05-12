@@ -55,6 +55,13 @@ public class CircularLinkedListTest {
 		System.out.println("삭제 항목: " + list.remove(list.size() - 1));
 		System.out.println(list);
 
+		
+		for(int i=0;i<list.size();i++)
+		{
+			System.out.println(((CircularLinkedList<Integer>) list).next());
+		}
+		
+		
 		// removeAll 테스트
 	/*	list.removeAll();
 		System.out.println(Arrays.toString(list.toArray()));
