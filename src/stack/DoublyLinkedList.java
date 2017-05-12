@@ -156,10 +156,14 @@ public class DoublyLinkedList<E> implements List<E> {
 
 	public void settail() {
 		Node<E> x = head;
-		while (x.next != null) {
-			x = x.next;
+		if (head == null) {
+			tail = null;
+		} else {
+			while (x.next != null) {
+				x = x.next;
+			}
+			tail = x;
 		}
-		tail = x;
 
 	}
 
