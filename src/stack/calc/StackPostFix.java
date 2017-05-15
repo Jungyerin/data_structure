@@ -3,6 +3,9 @@ package stack.calc;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
+import tree.LinkedTree;
+import tree.LinkedTree.TreeNode;
+
 public class StackPostFix<E> extends Stack<E> {
 
 	Stack<String> stack = new Stack<String>();
@@ -40,6 +43,7 @@ public class StackPostFix<E> extends Stack<E> {
 					stack.push(s);
 
 				} else {
+
 					String topstr = stack.peek();
 					if (priority(s) <= priority(topstr)) {
 						post.push(stack.pop());
@@ -120,4 +124,77 @@ public class StackPostFix<E> extends Stack<E> {
 		return result;
 	}
 
+	public LinkedTree<String> makeExpTree(Stack<String> post) {
+
+		LinkedTree<String> tree = new LinkedTree<String>();
+		Stack<TreeNode<String>> temp = new Stack<TreeNode<String>>();
+
+		Iterator<String> p = post.iterator();
+		int i = 1;
+
+		while (p.hasNext()) {
+
+			String s = p.next();
+			TreeNode<String> node = new TreeNode<String>(s);
+			//System.out.println("i=" + i + "s=" + s + "post size=" + post.size());
+			if (i == post.size()) {
+
+				node.setRight(temp.pop());
+				node.setLeft(temp.pop());
+				tree.setRoot(node);
+
+				break;
+			}
+			if (s.equals("+") || s.equals("-") || s.equals("*") || s.equals("/")) {
+				TreeNode<String> num2 = temp.pop();
+				TreeNode<String> num1 = temp.pop();
+
+				node.setLeft(num1);
+				node.setRight(num2);
+
+				temp.push(node);
+
+			} else {
+				temp.push(node);
+			}
+			i++;
+		}
+
+		return tree;
+
+	}
+
+	public Double calcTree(TreeNode<E> node) {
+
+		double num1 = 0.0;
+		double num2 = 0.0;
+		double result = 0.0;
+
+		if (node.getLeft() != null) {
+			num1=calcTree(node.getLeft());
+		}
+
+		if (node.getRight() != null) {
+			num2=calcTree(node.getRight());
+		}
+	
+		switch (String.valueOf(node.getData())) {
+		case "+":
+			result = num1 + num2;
+			break;
+		case "-":
+			result = num1 - num2;
+			break;
+		case "*":
+			result = num1 * num2;
+			break;
+		case "/":
+			result = num1 / num2;
+			break;
+		default:
+			result = Double.valueOf(String.valueOf(node.getData()));
+		}
+
+		return result;
+	}
 }
